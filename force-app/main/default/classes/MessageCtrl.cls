@@ -6,7 +6,7 @@ public class MessageCtrl {
         String endPoint = 'https://api.twilio.com';
         String sender = '+13133273959';
         String reciever = '+918950025769';
-        String messageBody = 'Hello';
+        String messageBody = 'Hello Body Sending';
 
         Http http = new Http();
 
