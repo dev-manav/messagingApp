@@ -1,0 +1,53 @@
+<template>
+    <!-- <div class="slds-grid slds-wrap" style="height: 50vh;">
+        <div class="slds-col slds-size_1-of-1" style="background-color: white; height: 15%;">
+            <div class="slds-grid">
+                <div class="slds-col slds-size_1-of-2">
+                    UserName
+                </div>
+                <div class="slds-col slds-size_2-of-2">
+                    profile logo
+                </div>
+            </div>
+        </div>
+        <div class="slds-col slds-size_1-of-1" style="background-color:whitesmoke; height: 70%;">Body</div>
+        <div class="slds-col slds-size_2-of-1" style="background-color: white; height: 15%;">Footer</div>
+    </div> -->
+    <div class="slds-grid slds-grid_vertical" style="border-radius: 5px;height: 50vh; width:100%">
+            <div class="slds-col slds-p-top_xx-small" style="background-color: white; height: 15%;">
+                <div class="slds-grid">
+                    <div class="slds-col slds-text-align_right" style="width: 80%;">
+                        <div><span style="font-family: system-ui;font-size: x-large">Manav Sharma</span></div>
+                        <div><span><a href="" style="color: black;"> Click to view </a></span></div>
+                    </div>
+                    <div class="slds-col slds-text-align_right" style="width: 20%;">
+                        <lightning-avatar variant="circle" size="large" src={profilePic} initials="AW" alternative-text="Amy Weaver" class="slds-m-right_small" style="zoom: 100%"></lightning-avatar>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-col slds-p-left_x-small slds-p-right_x-small" style="background-color:#f3f3f3; height: 77%;">
+                <div class="messages__item messages__item--reciever">
+                    <span class="slds-align_absolute-center slds-p-left_x-small slds-p-right_x-small" >Reciever has sent the message</span>
+                </div>
+                <div class="messages__item messages__item--sender">
+                    <span class="slds-align_absolute-center slds-p-left_x-small slds-p-right_x-small" style="color: white;">Sender has sent the message</span>
+                </div>
+                <!-- .<div class="messages__item messages__item--typing">
+                    <span class="messages__dot"></span>
+                    <span class="messages__dot"></span>
+                    <span class="messages__dot"></span>
+                </div> -->
+            </div>
+            <div class="slds-col" style="background-color: white; height: 13%;">
+              <div class="slds-grid slds-p-left_x-small slds-p-right_x-small ">
+                <div class="slds-col slds-p-top_x-small" style="width:85%;">
+                    <input type="text" id="text-input-id-47" placeholder="Enter message..." required="" class="slds-input" />
+                </div>
+                <div class="slds-col slds-p-top_xx-small" style="display:flex;justify-content:center ;width:5%">
+                    <button class="send_button" onclick={sendMessage}><img style="max-height: 200px; height:70%" alt="Compnay logo" src={sendButton}/></button>
+                </div>
+              </div>
+            </div>
+    </div>
+
+</template>
