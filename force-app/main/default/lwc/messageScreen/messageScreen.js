@@ -1,22 +1,75 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, api, wire, track } from 'lwc';
 import messageResource from "@salesforce/resourceUrl/messagingResource";
-const twilioURL = 'https://api.twilio.com/2010-04-01';
-const accountSID = 'ACb72ab7ad5500917d2d058ec77eaad682'
+import sendMessage from '@salesforce/apex/MessageCtrl.sendMessage';
+import getMessages from '@salesforce/apex/MessageCtrl.getMessages';
+import { getRecord } from 'lightning/uiRecordApi';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class MessageScreen extends LightningElement {
-    sendButton = messageResource+'/sendIcon.png';
+    @api recordId;
+    sendButtonPic = messageResource+'/sendIcon.png';
     profilePic = messageResource+'/profilePic.jpg';
-    number = [1,2,3,4,5,6,7,8,9,0]
+    @track messageList = [1,2,3];
+    @track currentRecordData;
 
-    sendMessage(){
-        console.log('Inside Calling');
-        var req = 'https://api.twilio.com/2010-04-01/'+accountSID+'/Messages.json';
-        this.getData(req);
+
+    @wire(getRecord,{recordId : '$recordId', layoutTypes:'Full'}) 
+    record({data, error}){
+        if(data){
+            this.currentRecordData = data;
+            getMessages({sender:data.fields.Phone.value, reciever:data.fields.MobilePhone.value}).then(data =>{
+                data.forEach(message => {
+                    if(message.Sender__c==this.currentRecordData.fields.Phone.value){
+                        this.messageList.push({"sender":"Present","Message":message.Message_Body__c})
+                    }
+                    else{
+                        this.messageList.push({"sender":"","Message":message.Message_Body__c})
+                    }
+                });
+                // console.log(JSON.stringify(data.messageList));
+                // this.messageList = data.messageList;
+                // console.log(this.messageList);
+            })
+            .catch(error =>{
+                console.log('Errro '+error);
+            })
+            
+        }
+        else if(error){
+            this.showMessage('Error','Error in getting Contact details', 'Error');
+        }
+    };
+
+
+    async sendMessage(){
+        let sender = this.currentRecordData.fields.Phone.value;
+        let reciever = this.currentRecordData.fields.MobilePhone.value;
+        let message = this.template.querySelector('input').value;
         
+        let status= await sendMessage({senderNumber:sender, recieverNumber:reciever, messsageBody:message})
+        .then(data =>{
+            return data;
+        })
+        .catch(error=>{this.showMessage('Message Not Sent',error,'error')});
+        if(status===undefined){
+            this.showMessage('Error','Status '+status,'Error');
+        }
+        else{
+            var arr = [];
+            arr = this.messageList;
+            arr.push([message]);
+            this.messageList = arr;
+            console.log(status);
+            this.showMessage(status,status.includes('SUCCESS')?'Message Sent':'Message Not Sent',status);
+        }
     }
 
-    async getData(req){
-        let data = await fetch(req,{method:'GET'});
-        console.log("getting Dta"+JSON.stringify(data));
-    }
+    showMessage( titile, message, type ){
+        const toastEvt = new ShowToastEvent({
+            title: titile,
+            message: message,
+            variant: type
+        });
+        this.dispatchEvent(toastEvt);
+    };
 }
