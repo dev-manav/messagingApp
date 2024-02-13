@@ -13,26 +13,30 @@
             </div>
 
 
-            <div class="slds-col slds-p-left_x-small slds-p-right_x-small scroll" style="background-color:#f3f3f3; height: 77%;">
-                <template if:true={messageList}>
+            <div class="slds-col slds-p-left_x-small slds-p-right_x-small scroll" style="background-color:#f3f3f3; height: 70%;" onscroll={handleScroll}>
+                
+                <div if:true={loaded} style="height:50px; position:relative">
+                    <lightning-spinner variant="base" size="medium" style="background-color:#f3f3f3"></lightning-spinner>
+                </div>
                     <template for:each={messageList} for:item="message">
                         <template if:true={message.sender}>
-                            <div class="chat" style="flex-direction: column-reverse;" key={message}>
-                                <div class="messages__item messages__item--reciever">
-                                    <span class="slds-align_absolute-center slds-p-left_x-small slds-p-right_x-small" >{message.Message_Body__c}</span>
+                            <div class="chat" style="flex-direction: column-reverse;" key={message.Id}>
+                                <div class="messages__item messages__item--receiver">
+                                    <span class="slds-align_absolute-center slds-p-left_x-small slds-p-right_x-small">{message.Message}</span>
                                 </div>
                             </div>
                         </template>
-                        <div class="chat" key={message}>
-                            <div class="messages__item messages__item--sender">
-                                <span class="slds-align_absolute-center slds-p-left_x-small slds-p-right_x-small" style="color: white;">{message.Message_Body__c}</span>
+                        <template if:false={message.sender}>
+                            <div class="chat" key={message.Id}>
+                                <div class="messages__item messages__item--sender">
+                                    <span class="slds-align_absolute-center slds-p-left_x-small slds-p-right_x-small" style="color: white;">{message.Message}</span>
+                                </div>
                             </div>
-                        </div>
+                        </template>
                     </template>
-                </template>
-
-
-                <!-- .<div class="messages__item messages__item--typing">
+            
+                <!-- Placeholder for typing indicator -->
+                <!-- <div class="messages__item messages__item--typing">
                     <span class="messages__dot"></span>
                     <span class="messages__dot"></span>
                     <span class="messages__dot"></span>
@@ -43,7 +47,7 @@
             <div class="slds-col" style="background-color: white; height: 13%;">
               <div class="slds-grid slds-p-left_x-small slds-p-right_x-small ">
                 <div class="slds-col slds-p-top_x-small" style="width:85%;">
-                    <input type="text" id="text-input-id-47" placeholder="Enter message..." required="" class="slds-input" />
+                    <input type="text" data-id="customInput" placeholder="Enter message..." required="" class="slds-input" />
                 </div>
                 <div class="slds-col slds-p-top_xx-small" style="display:flex;justify-content:center ;width:5%">
                     <button class="send_button" onclick={sendMessage}><img style="max-height: 200px; height:70%" alt="Compnay logo" src={sendButtonPic}/></button>

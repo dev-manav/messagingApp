@@ -9,57 +9,85 @@ export default class MessageScreen extends LightningElement {
     @api recordId;
     sendButtonPic = messageResource+'/sendIcon.png';
     profilePic = messageResource+'/profilePic.jpg';
-    @track messageList = [1,2,3];
+    @track messageList = [];
     @track currentRecordData;
+    @track loaded = false;
+    rowLimit = 5;
+    @track offSet = 0;
 
 
     @wire(getRecord,{recordId : '$recordId', layoutTypes:'Full'}) 
     record({data, error}){
         if(data){
             this.currentRecordData = data;
-            getMessages({sender:data.fields.Phone.value, reciever:data.fields.MobilePhone.value}).then(data =>{
-                data.forEach(message => {
-                    if(message.Sender__c==this.currentRecordData.fields.Phone.value){
-                        this.messageList.push({"sender":"Present","Message":message.Message_Body__c})
-                    }
-                    else{
-                        this.messageList.push({"sender":"","Message":message.Message_Body__c})
-                    }
-                });
-                // console.log(JSON.stringify(data.messageList));
-                // this.messageList = data.messageList;
-                // console.log(this.messageList);
-            })
-            .catch(error =>{
-                console.log('Errro '+error);
-            })
-            
+            this.loadMessages();
         }
         else if(error){
             this.showMessage('Error','Error in getting Contact details', 'Error');
         }
     };
 
+    loadMessages(){
+        getMessages({sender:this.currentRecordData.fields.Phone.value, receiver:this.currentRecordData.fields.MobilePhone.value, offset: this.offSet, rowLimit: this.rowLimit}).then(data =>{
+            let messageList = [];
+            data.messageList.forEach(message => {
+                if(message.Sender__c==this.currentRecordData.fields.MobilePhone.value){
+                    messageList.push({"sender":true,"Message":message.Message_Body__c,"Id":message.Id})
+                }
+                else{
+                    messageList.push({"sender":false,"Message":message.Message_Body__c,"Id":message.Id})
+                }
+            });
+
+            console.log(messageList);
+
+            messageList = messageList.reverse();
+
+            if(Array.isArray(this.messageList) && this.messageList.length){
+                this.messageList = [...messageList , ...this.messageList];
+            }
+            else{
+                this.messageList = messageList;
+            }
+            this.loaded = false;
+        })
+        .catch(error =>{
+            this.showMessage('Error','Error In loading the Messages "'+error+'"','Error');
+        })
+    }
+
+    loadMore(){
+        if(this.loaded) return;
+        this.loaded = true;
+        this.offSet = this.offSet+this.rowLimit;
+        this.loadMessages();
+    }
+
+    handleScroll(event) {
+        const el = event.target;
+        if (el.scrollTop == 0) {
+            this.loadMore();
+        }
+    }
+
 
     async sendMessage(){
         let sender = this.currentRecordData.fields.Phone.value;
-        let reciever = this.currentRecordData.fields.MobilePhone.value;
-        let message = this.template.querySelector('input').value;
+        let receiver = this.currentRecordData.fields.MobilePhone.value;
+        let message = this.template.querySelector('input[data-id="customInput"]').value;
         
-        let status= await sendMessage({senderNumber:sender, recieverNumber:reciever, messsageBody:message})
+        let status= await sendMessage({senderNumber:sender, receiverNumber:receiver, messageBody:message})
         .then(data =>{
             return data;
         })
         .catch(error=>{this.showMessage('Message Not Sent',error,'error')});
+
         if(status===undefined){
             this.showMessage('Error','Status '+status,'Error');
         }
         else{
-            var arr = [];
-            arr = this.messageList;
-            arr.push([message]);
-            this.messageList = arr;
-            console.log(status);
+            this.messageList.push({"sender":false,"Message":message,"Id":''});
+            this.template.querySelector('input[data-id="customInput"]').value = "";
             this.showMessage(status,status.includes('SUCCESS')?'Message Sent':'Message Not Sent',status);
         }
     }
