@@ -35,8 +35,31 @@ private class MessageCtrlTest {
     
 
     @isTest static void sendMessage(){
+        
+        List<HttpResponse> responses = new List<HttpResponse>();
+        // Add response 1
+        HttpResponse response2 = new HttpResponse();
+        String res = '<?xml version="1.0" encoding="UTF-8"?>'+
+             '<TwilioResponse>'+
+             '<Accounts>'+
+             '<Account>'+
+             '<OwnerAccountSid>ABCDE</OwnerAccountSid>'+
+             '</Account>'+
+             '</Accounts>'+
+             '</TwilioResponse>';
+        response2.setStatusCode(200);
+        response2.setBody(res);
+        String responseBody = response2.getBody();
+		System.debug(responseBody);
+        responses.add(response2);
+        
+        // Add response 2
+        HttpResponse response1 = new HttpResponse();
+        response1.setStatusCode(201);
+        response1.setBody('Response 2');
+        responses.add(response1);
 
-        Test.setMock(HttpCalloutMock.class, new SendMessageMock());
+        Test.setMock(HttpCalloutMock.class, new SendMessageMock(responses));
 
         String sender = '+1312345678';
         String receiver = '+918950025769';

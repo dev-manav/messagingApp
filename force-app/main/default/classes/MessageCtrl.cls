@@ -2,46 +2,35 @@
 global class MessageCtrl {
 
     public static String getAuthorizationId() {
-        // Create HTTP instance
+
+        String accountSId = null;
+            // Create HTTP instance
         Http http = new Http();
+            
+            // Create HTTP request
+            HttpRequest request = new HttpRequest();
+            request.setEndpoint('callout:Twilio/2010-04-01/Accounts');
+            request.setMethod('GET');
         
-        // Create HTTP request
-        HttpRequest request = new HttpRequest();
-        request.setEndpoint('callout:Twilio/2010-04-01/Accounts');
-        request.setMethod('GET');
-    
-        // Send the request and get the response
-        HttpResponse response = http.send(request);
-    
-        // Check the response status
-        if (response.getStatusCode() == 200) {
-            // Parse the response body
-            Dom.Document document = new Dom.Document();
-            document.load(response.getBody());
-    
-            // Get the account SID from the first Account element
-            List<Dom.XmlNode> accounts = document.getRootElement().getChildElements();
-            if (accounts.size() > 0) {
-                System.debug(accounts[0].getChildElement('Sid', ''));
-                String accountSid = accounts[0].getChildElement('Sid', null).getText();
-                System.debug('Twilio Account SID: ' + accountSid);
-                return accountSid;
-            } else {
-                System.debug('No accounts found in the Twilio response.');
-                return null;
+            // Send the request and get the response
+            HttpResponse response = http.send(request);
+        
+            // Check the response status
+            if (response.getStatusCode() == 200) {
+                // Parse the response body
+                // 
+                Dom.Document document = new Dom.Document();
+                document.load(response.getBody());
+                DOM.XMLNode root = document.getRootElement().getChildElement('Accounts', null).getChildElement('Account',null);
+                accountSId = root.getChildElement('OwnerAccountSid', null).getText();                
             }
-        } else {
-            // If the request fails, print the error response
-            System.debug('Error: ' + response.getStatusCode() + ' ' + response.getStatus());
-            System.debug('Response Body: ' + response.getBody());
-            return null;
-        }
+        return accountSId;
     }
 
     @AuraEnabled()
     public static String sendMessage(String senderNumber, String receiverNumber, String messageBody){
 
-        String authorizationId = System.Label.AUTH_ID;
+        String authorizationId = getAuthorizationId();
 
         Http http = new Http();
 
@@ -83,7 +72,6 @@ global class MessageCtrl {
             if (offSet != null && rowLimit != null) {
                 query +=  ' LIMIT ' + String.valueOf(rowLimit) + ' OFFSET ' + String.valueOf(offSet) ;
             }
-            System.debug(query);
             getMessagesList = Database.query(query);
             isSuccess = true;
         } catch (QueryException e) {
@@ -96,11 +84,9 @@ global class MessageCtrl {
     @HttpGet
     global static void getMessageFromTwilio() {
 
-        System.debug('In Twilio Integration Request');
         RestResponse response = RestContext.response;
 
         try {
-            System.debug('In Twilio Integration');
             RestRequest req = RestContext.request;
             String fromNumber = req.params.get('From');
             String toNumber = req.params.get('To');
@@ -114,9 +100,9 @@ global class MessageCtrl {
             insert message;
 
             // Send HTTP 200 OK response back to Twilio
-            RestContext.response.statusCode = 200;
-            RestContext.response.addHeader('Content-Type', 'text/plain');
-            RestContext.response.responseBody = Blob.valueOf('Thanks, We have received your SMS and SFTwilio Integration Support this!') ;
+            response.statusCode = 200;
+            response.addHeader('Content-Type', 'text/plain');
+            response.responseBody = Blob.valueOf('Thanks, We have received your SMS and SFTwilio Integration Support this!') ;
 
         } catch(Exception e) {
             // Send HTTP error response back to Twilio
@@ -144,4 +130,4 @@ global class MessageCtrl {
 
 }
 
-// String res = MessageCtrl.getMessages('+13133273959', '+918950025769',5);
+// String res = MessageCtrl.getAuthorizationId();

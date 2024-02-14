@@ -11,7 +11,9 @@ export default class MessageScreen extends LightningElement {
     profilePic = messageResource+'/profilePic.jpg';
     @track messageList = [];
     @track currentRecordData;
-    @track loaded = false;
+    @track messageLoadedSpinner = false;
+    @track sendMessageSpinner = false;
+
     rowLimit = 5;
     @track offSet = 0;
 
@@ -19,6 +21,7 @@ export default class MessageScreen extends LightningElement {
     @wire(getRecord,{recordId : '$recordId', layoutTypes:'Full'}) 
     record({data, error}){
         if(data){
+            this.sendMessageSpinner = true;
             this.currentRecordData = data;
             this.loadMessages();
         }
@@ -49,7 +52,8 @@ export default class MessageScreen extends LightningElement {
             else{
                 this.messageList = messageList;
             }
-            this.loaded = false;
+            this.messageLoadedSpinner = false;
+            this.sendMessageSpinner = false;
         })
         .catch(error =>{
             this.showMessage('Error','Error In loading the Messages "'+error+'"','Error');
@@ -57,8 +61,8 @@ export default class MessageScreen extends LightningElement {
     }
 
     loadMore(){
-        if(this.loaded) return;
-        this.loaded = true;
+        if(this.messageLoadedSpinner) return;
+        this.messageLoadedSpinner = true;
         this.offSet = this.offSet+this.rowLimit;
         this.loadMessages();
     }
@@ -72,6 +76,7 @@ export default class MessageScreen extends LightningElement {
 
 
     async sendMessage(){
+        this.sendMessageSpinner = true;
         let sender = this.currentRecordData.fields.Phone.value;
         let receiver = this.currentRecordData.fields.MobilePhone.value;
         let message = this.template.querySelector('input[data-id="customInput"]').value;
@@ -81,6 +86,8 @@ export default class MessageScreen extends LightningElement {
             return data;
         })
         .catch(error=>{this.showMessage('Message Not Sent',error,'error')});
+
+        this.sendMessageSpinner = false;
 
         if(status===undefined){
             this.showMessage('Error','Status '+status,'Error');

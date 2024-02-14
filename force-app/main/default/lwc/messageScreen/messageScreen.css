@@ -78,3 +78,18 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+.overlay{
+    position: absolute;
+    max-width: 485.22px;
+    max-height: 262px;
+    height: 100%;
+    width: 100%;
+    opacity: 0.8;
+}
+
+@media (max-width: 307px) {
+    .parent-container {
+        width: auto; /* Allow it to expand beyond 300px when window size is smaller */
+    }
+}
