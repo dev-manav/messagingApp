@@ -1,7 +1,7 @@
 @RestResource(urlMapping='/MessageCtrl/*')  //Use * for flexible structure of the endpoint which contain any kind of structure.
 global class MessageCtrl {
 
-    public static String getAuthorizationId() {
+    private static String getAuthorizationId() {
 
         String accountSId = null;
             // Create HTTP instance
@@ -46,7 +46,7 @@ global class MessageCtrl {
         //Send the request and get response
         HttpResponse response = http.send(request);
 
-        if(response.getStatusCode()==Integer.valueOf('201')){
+        if(response.getStatusCode()==201){
             MessagingApp__c message = new MessagingApp__c();
             message.Sender__c = senderNumber;
             message.Receiver__c = receiverNumber;
