@@ -40,12 +40,16 @@
     border-top-right-radius: 20px;
     border-bottom-left-radius: 20px;
     float: right;
+    font-size: large;
+    padding: 5px;
 }
 
-.messages__item--reciever{
+.messages__item--receiver{
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
+    font-size: large;
+    padding: 5px;
 }
 
 .send_button{
@@ -54,4 +58,38 @@
     border: none;
     font-size: small;
     padding-left: revert
+}
+
+.chat{
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.scroll{
+    overflow-y: scroll;
+}
+
+.scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scroll {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.overlay{
+    position: absolute;
+    max-width: 485.22px;
+    max-height: 262px;
+    height: 100%;
+    width: 100%;
+    opacity: 0.8;
+}
+
+@media (max-width: 307px) {
+    .parent-container {
+        width: auto; /* Allow it to expand beyond 300px when window size is smaller */
+    }
 }
